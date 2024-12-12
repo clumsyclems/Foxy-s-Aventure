@@ -10,17 +10,20 @@ public class PlayerScript : MonoBehaviour
     /* Define the jumpforce of the player */
     public float jumpForce = 10f;
     /* LayerMask to now which is the floor */
-    public LayerMask layerMask;
+    public LayerMask floorLayerMask;
     /* Value to know if the player is on the ground */
     public Boolean isGrounded = false;
     /* Value to use for the size of the ground check box */
-    public Vector3 groundCheckSize = Vector3.zero;
+    public Vector3 vector3GroundCheckSize = Vector3.zero;
+    /* Transform Need to create a zone to know if the player is on the ground */
+    public Transform groundCheckTransform = null;
 
-    private new Rigidbody2D rigidbody2D;
-    private SpriteRenderer spriteRenderer;
+    private new Rigidbody2D rigidbody2D = null;
+    private SpriteRenderer spriteRenderer = null;
 
-    private PlayerInputAction playerInputActions;
-    private InputAction movement;
+    private PlayerInputAction playerInputActions = null;
+    private InputAction movement = null;
+    private Animator animator = null;
 
     private void Awake()
     {
@@ -38,9 +41,9 @@ public class PlayerScript : MonoBehaviour
     }
 
     private void DoJump (InputAction.CallbackContext obj)
-    {
+    { 
         if (Input.GetButton("Jump") && isGrounded)
-        {
+        { 
             rigidbody2D.AddForce(Vector2.up * jumpForce);
         }
     }
@@ -55,39 +58,36 @@ public class PlayerScript : MonoBehaviour
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     private void FixedUpdate()
     {
-        /* Horizontal direction */
-        float horizontalDirection = movement.ReadValue<Vector2>().x ;
+        /* Manage Vertical direction */
+        animator.SetFloat("VerticalVelocity", rigidbody2D.linearVelocityY);
+        /* Manage Horizontal direction */
+        float horizontalDirection = movement.ReadValue<Vector2>().x;
+        animator.SetFloat("Speed", MathF.Abs(horizontalDirection));
         rigidbody2D.linearVelocity = new Vector2(horizontalDirection * maxSpeed * Time.deltaTime, rigidbody2D.linearVelocityY);
         Flip(horizontalDirection);
+        /* grounded verification */
+        isGrounded = Physics2D.OverlapBox(groundCheckTransform.position, vector3GroundCheckSize, 0, floorLayerMask);
+        animator.SetBool("IsGrounded", isGrounded);
+
+
     }
 
     private void Flip(float horizontalDirection)
     {
-        Debug.Log("Horizontal velocity " +  horizontalDirection);
         if(horizontalDirection < - 0.1f) 
             spriteRenderer.flipX = true;
         else if(horizontalDirection > 0.1f)
             spriteRenderer.flipX = false;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnDrawGizmos()
     {
-        if(collision.collider.GetType() == typeof(TilemapCollider2D))
-        {
-            isGrounded = true;
-        }
-        
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.collider.GetType() == typeof(TilemapCollider2D))
-        {
-            isGrounded = false;
-        }
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(groundCheckTransform.position, vector3GroundCheckSize);
     }
 }
