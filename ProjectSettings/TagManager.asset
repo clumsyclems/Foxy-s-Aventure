@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Gem
+  - House
   layers:
   - Default
   - TransparentFX
@@ -41,14 +43,20 @@ TagManager:
   - name: Background
     uniqueID: 2458113803
     locked: 0
-  - name: PlantFloor
+  - name: BackgroundPlantFloor
     uniqueID: 3651965331
+    locked: 0
+  - name: Collectible
+    uniqueID: 3856458093
     locked: 0
   - name: PlayerFloor
     uniqueID: 1208545265
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 2228418581
     locked: 0
   m_RenderingLayers:
   - Default

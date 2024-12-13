@@ -1,35 +1,47 @@
 using System;
+using TMPro;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour 
 {
+    /* Value to know if the player is on the ground */
+    public Boolean isGrounded = false;
     /* Define the max speed of the player */
     public float maxSpeed = 2.0f;
     /* Define the jumpforce of the player */
     public float jumpForce = 10f;
     /* LayerMask to now which is the floor */
     public LayerMask floorLayerMask;
-    /* Value to know if the player is on the ground */
-    public Boolean isGrounded = false;
     /* Value to use for the size of the ground check box */
     public Vector3 vector3GroundCheckSize = Vector3.zero;
     /* Transform Need to create a zone to know if the player is on the ground */
     public Transform groundCheckTransform = null;
+    /* Gem Text to modify */
+    public TextMeshProUGUI numberOfGemText = null; 
+    /* The pause menu panel */
+    public Image pauseMenu = null;
 
+    /* Player RigidBody */
     private new Rigidbody2D rigidbody2D = null;
+    /* Player Sprite Renderer */
     private SpriteRenderer spriteRenderer = null;
-
+    /* Player Input Action Class*/
     private PlayerInputAction playerInputActions = null;
+    /* Input action value which take the player movement */
     private InputAction movement = null;
+    /* Player Character Animator */
     private Animator animator = null;
+
+    public int nbGems = 0;
 
     private void Awake()
     {
         playerInputActions = new PlayerInputAction();
     }
-
+    
+    /* Used to enable the binding Input Action */ 
     private void OnEnable()
     {
         movement = playerInputActions.Player.Movement;
@@ -38,6 +50,17 @@ public class PlayerScript : MonoBehaviour
         playerInputActions.Player.Jump.performed += DoJump;
         playerInputActions.Player.Jump.Enable();
 
+        playerInputActions.Player.Pause.performed += ChangePauseMenuStatus;
+        playerInputActions.Player.Pause.Enable();
+
+    }
+
+    private void ChangePauseMenuStatus(InputAction.CallbackContext obj)
+    {
+        /* Change the pause menu status from enable to disable and inverse */
+        pauseMenu.enabled = !pauseMenu.enabled;
+        /* If the pauseMenu is enable the game stop and if it is disable the game start */
+        Time.timeScale = pauseMenu.enabled ? 0f : 1f;
     }
 
     private void DoJump (InputAction.CallbackContext obj)
@@ -48,10 +71,12 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    /* Used to disable the binding Input Action */
     private void OnDisable()
     {
         movement.Disable();
         playerInputActions.Player.Jump.Disable();
+        playerInputActions.Player.Pause.Disable();
     }
 
     private void Start()
@@ -65,11 +90,18 @@ public class PlayerScript : MonoBehaviour
     {
         /* Manage Vertical direction */
         animator.SetFloat("VerticalVelocity", rigidbody2D.linearVelocityY);
-        /* Manage Horizontal direction */
+
+        /**
+         * Manage Horizontal direction 
+         * get the input system info for the movement 
+         */
         float horizontalDirection = movement.ReadValue<Vector2>().x;
         animator.SetFloat("Speed", MathF.Abs(horizontalDirection));
         rigidbody2D.linearVelocity = new Vector2(horizontalDirection * maxSpeed * Time.deltaTime, rigidbody2D.linearVelocityY);
+
+        /* Verify if flip the player sprite is needed */ 
         Flip(horizontalDirection);
+
         /* grounded verification */
         isGrounded = Physics2D.OverlapBox(groundCheckTransform.position, vector3GroundCheckSize, 0, floorLayerMask);
         animator.SetBool("IsGrounded", isGrounded);
@@ -77,6 +109,7 @@ public class PlayerScript : MonoBehaviour
 
     }
 
+    /* Flip the player sprite when he goes in another direction */
     private void Flip(float horizontalDirection)
     {
         if(horizontalDirection < - 0.1f) 
@@ -85,9 +118,22 @@ public class PlayerScript : MonoBehaviour
             spriteRenderer.flipX = false;
     }
 
+    /* Draw Gizmo here the groundcheck verification area */
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(groundCheckTransform.position, vector3GroundCheckSize);
+    }
+
+    /* Veeify the player collision with other trigerred collider */
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        /* If the object collide have the tag "Gem" detroy it */
+        if (collision.gameObject.tag == "Gem") 
+        {
+            nbGems++;
+            numberOfGemText.text = nbGems.ToString();
+            Destroy(collision.gameObject);
+        }
     }
 }
