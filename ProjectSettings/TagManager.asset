@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Gem
   - House
+  - EndLevel
+  - Heal
+  - Hurt
   layers:
   - Default
   - TransparentFX
@@ -42,6 +45,9 @@ TagManager:
   m_SortingLayers:
   - name: Background
     uniqueID: 2458113803
+    locked: 0
+  - name: SecondPlayerFloor
+    uniqueID: 1598182953
     locked: 0
   - name: BackgroundPlantFloor
     uniqueID: 3651965331

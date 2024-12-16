@@ -2,9 +2,10 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class PlayerScript : MonoBehaviour 
+public class PlayerScript : MonoBehaviour
 {
     /* Value to know if the player is on the ground */
     public Boolean isGrounded = false;
@@ -19,9 +20,11 @@ public class PlayerScript : MonoBehaviour
     /* Transform Need to create a zone to know if the player is on the ground */
     public Transform groundCheckTransform = null;
     /* Gem Text to modify */
-    public TextMeshProUGUI numberOfGemText = null; 
+    public TextMeshProUGUI numberOfGemText = null;
     /* The pause menu panel */
     public Image pauseMenu = null;
+    /* Canvas which use CanvasScript too modify info on the canvas */
+    public CanvasScript canvas = null;
 
     /* Player RigidBody */
     private new Rigidbody2D rigidbody2D = null;
@@ -33,15 +36,17 @@ public class PlayerScript : MonoBehaviour
     private InputAction movement = null;
     /* Player Character Animator */
     private Animator animator = null;
-
-    public int nbGems = 0;
+    /* the Player number of heart */
+    private int numberHeart = 3;
+    /* the Player number of gems collected */
+    private int numberGems = 0;
 
     private void Awake()
     {
         playerInputActions = new PlayerInputAction();
     }
-    
-    /* Used to enable the binding Input Action */ 
+
+    /* Used to enable the binding Input Action */
     private void OnEnable()
     {
         movement = playerInputActions.Player.Movement;
@@ -53,22 +58,6 @@ public class PlayerScript : MonoBehaviour
         playerInputActions.Player.Pause.performed += ChangePauseMenuStatus;
         playerInputActions.Player.Pause.Enable();
 
-    }
-
-    private void ChangePauseMenuStatus(InputAction.CallbackContext obj)
-    {
-        /* Change the pause menu status from enable to disable and inverse */
-        pauseMenu.enabled = !pauseMenu.enabled;
-        /* If the pauseMenu is enable the game stop and if it is disable the game start */
-        Time.timeScale = pauseMenu.enabled ? 0f : 1f;
-    }
-
-    private void DoJump (InputAction.CallbackContext obj)
-    { 
-        if (Input.GetButton("Jump") && isGrounded)
-        { 
-            rigidbody2D.AddForce(Vector2.up * jumpForce);
-        }
     }
 
     /* Used to disable the binding Input Action */
@@ -84,6 +73,8 @@ public class PlayerScript : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+
+        canvas.AddHeart(this.numberHeart);
     }
 
     private void FixedUpdate()
@@ -99,23 +90,13 @@ public class PlayerScript : MonoBehaviour
         animator.SetFloat("Speed", MathF.Abs(horizontalDirection));
         rigidbody2D.linearVelocity = new Vector2(horizontalDirection * maxSpeed * Time.deltaTime, rigidbody2D.linearVelocityY);
 
-        /* Verify if flip the player sprite is needed */ 
+        /* Verify if flip the player sprite is needed */
         Flip(horizontalDirection);
 
         /* grounded verification */
         isGrounded = Physics2D.OverlapBox(groundCheckTransform.position, vector3GroundCheckSize, 0, floorLayerMask);
         animator.SetBool("IsGrounded", isGrounded);
 
-
-    }
-
-    /* Flip the player sprite when he goes in another direction */
-    private void Flip(float horizontalDirection)
-    {
-        if(horizontalDirection < - 0.1f) 
-            spriteRenderer.flipX = true;
-        else if(horizontalDirection > 0.1f)
-            spriteRenderer.flipX = false;
     }
 
     /* Draw Gizmo here the groundcheck verification area */
@@ -129,11 +110,72 @@ public class PlayerScript : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         /* If the object collide have the tag "Gem" detroy it */
-        if (collision.gameObject.tag == "Gem") 
+
+        switch (collision.gameObject.tag)
         {
-            nbGems++;
-            numberOfGemText.text = nbGems.ToString();
-            Destroy(collision.gameObject);
+            case "Gem":
+                numberGems++;
+                numberOfGemText.text = numberGems.ToString();
+                Destroy(collision.gameObject);
+                break;
+
+            case "EndLevel":
+                SceneManager.LoadScene("SampleScene 1");
+                break;
+
+            case "Hurt":
+                canvas.RemoveHeart(1);
+                break;
+
+            case "Enemy":
+                canvas.RemoveHeart(1);
+                --numberHeart;
+                break;
+
+            case "Heal":
+                canvas.AddHeart(1);
+                ++numberHeart;
+                break;
+
+            default:
+                Debug.Log("Nothing to do for tag : "+collision.gameObject.tag);
+                break;
         }
+    }
+
+    /* Flip the player sprite when he goes in another direction */
+    private void Flip(float horizontalDirection)
+    {
+        if (horizontalDirection < -0.1f)
+            spriteRenderer.flipX = true;
+        else if (horizontalDirection > 0.1f)
+            spriteRenderer.flipX = false;
+    }
+
+    /* Player ump function */
+    private void DoJump(InputAction.CallbackContext obj)
+    {
+        if (Input.GetButton("Jump") && isGrounded)
+        {
+            rigidbody2D.AddForce(Vector2.up * jumpForce);
+        }
+    }
+
+    /* Activate/desactivate pause menu */
+    private void ChangePauseMenuStatus(InputAction.CallbackContext obj)
+    {
+        /* Change the pause menu status from enable to disable and inverse */
+        pauseMenu.enabled = !pauseMenu.enabled;
+        /* If the pauseMenu is enable the game stop and if it is disable the game start */
+        Time.timeScale = pauseMenu.enabled ? 0f : 1f;
+    }
+
+    public void SetNumberOfHeart(int numberOfHeart)
+    { 
+        this.numberHeart = numberOfHeart;
+    }
+    public int GetNumberHeart()
+    {
+        return this.numberHeart;
     }
 }
