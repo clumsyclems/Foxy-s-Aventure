@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +10,12 @@ public class PlayerScript : MonoBehaviour
 {
     /* Value to know if the player is on the ground */
     public Boolean isGrounded = false;
+    /* Boolean the set invicible the player */
+    public Boolean isInvicible = false;
+    /* The Recovery time blinking duration */
+    public float recoveryTimeBlinkingDuration = 0.2f;
+    /* The Recovery time */
+    public float recoveryTime = 0f;
     /* Define the max speed of the player */
     public float maxSpeed = 2.0f;
     /* Define the jumpforce of the player */
@@ -21,8 +28,6 @@ public class PlayerScript : MonoBehaviour
     public Transform groundCheckTransform = null;
     /* Gem Text to modify */
     public TextMeshProUGUI numberOfGemText = null;
-    /* The pause menu panel */
-    public Image pauseMenu = null;
     /* Canvas which use CanvasScript too modify info on the canvas */
     public CanvasScript canvas = null;
 
@@ -30,10 +35,10 @@ public class PlayerScript : MonoBehaviour
     private new Rigidbody2D rigidbody2D = null;
     /* Player Sprite Renderer */
     private SpriteRenderer spriteRenderer = null;
-    /* Player Input Action Class*/
-    private PlayerInputAction playerInputActions = null;
     /* Input action value which take the player movement */
     private InputAction movement = null;
+    /* Player Input to switch commands according the type of screen */
+    private PlayerInput playerInput = null;
     /* Player Character Animator */
     private Animator animator = null;
     /* the Player number of heart */
@@ -43,42 +48,38 @@ public class PlayerScript : MonoBehaviour
 
     private void Awake()
     {
-        playerInputActions = new PlayerInputAction();
+        rigidbody2D = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+        playerInput = GetComponent<PlayerInput>();
     }
 
     /* Used to enable the binding Input Action */
     private void OnEnable()
     {
-        movement = playerInputActions.Player.Movement;
+        movement = playerInput.actions["Movement"];
         movement.Enable();
 
-        playerInputActions.Player.Jump.performed += DoJump;
-        playerInputActions.Player.Jump.Enable();
-
-        playerInputActions.Player.Pause.performed += ChangePauseMenuStatus;
-        playerInputActions.Player.Pause.Enable();
-
+        playerInput.actions["Movement"].performed += DoJump;
+        playerInput.actions["Movement"].Enable();
     }
 
     /* Used to disable the binding Input Action */
     private void OnDisable()
     {
         movement.Disable();
-        playerInputActions.Player.Jump.Disable();
-        playerInputActions.Player.Pause.Disable();
+
+        playerInput.actions["Movement"].performed -= DoJump;
+        playerInput.actions["Movement"].Disable();
     }
 
     private void Start()
     {
-        rigidbody2D = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-
-        canvas.AddHeart(this.numberHeart);
+        canvas.AddHeart(numberHeart);
     }
 
     private void FixedUpdate()
-    {
+    { 
         /* Manage Vertical direction */
         animator.SetFloat("VerticalVelocity", rigidbody2D.linearVelocityY);
 
@@ -106,11 +107,9 @@ public class PlayerScript : MonoBehaviour
         Gizmos.DrawWireCube(groundCheckTransform.position, vector3GroundCheckSize);
     }
 
-    /* Veeify the player collision with other trigerred collider */
+    /* Verify the player collision with other trigerred collider */
     private void OnTriggerEnter2D(Collider2D collision)
-    {
-        /* If the object collide have the tag "Gem" detroy it */
-
+    { 
         switch (collision.gameObject.tag)
         {
             case "Gem":
@@ -124,12 +123,11 @@ public class PlayerScript : MonoBehaviour
                 break;
 
             case "Hurt":
-                canvas.RemoveHeart(1);
+                TakeDamage(1);
                 break;
 
             case "Enemy":
-                canvas.RemoveHeart(1);
-                --numberHeart;
+                TakeDamage(1);
                 break;
 
             case "Heal":
@@ -137,8 +135,33 @@ public class PlayerScript : MonoBehaviour
                 ++numberHeart;
                 break;
 
+            case "WeakSpot":
+                if(!isGrounded){rigidbody2D.AddForce(1.5f * jumpForce * Vector2.up);}
+                break;
+
+            case "Floor":
+                break;
+
             default:
                 Debug.Log("Nothing to do for tag : "+collision.gameObject.tag);
+                break;
+        }
+    }
+
+    /* Verify the Collision between the player and other object */
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Enemy":
+                TakeDamage(1);
+                break;
+
+            case "Floor":
+                break;
+
+            default:
+                Debug.Log("Nothing to do for : " + collision.gameObject.tag);
                 break;
         }
     }
@@ -161,21 +184,43 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    /* Activate/desactivate pause menu */
-    private void ChangePauseMenuStatus(InputAction.CallbackContext obj)
-    {
-        /* Change the pause menu status from enable to disable and inverse */
-        pauseMenu.enabled = !pauseMenu.enabled;
-        /* If the pauseMenu is enable the game stop and if it is disable the game start */
-        Time.timeScale = pauseMenu.enabled ? 0f : 1f;
-    }
-
     public void SetNumberOfHeart(int numberOfHeart)
     { 
         this.numberHeart = numberOfHeart;
     }
+
     public int GetNumberHeart()
     {
         return this.numberHeart;
+    }
+
+    private void TakeDamage(int damage)
+    { 
+        if(!isInvicible)
+        {
+            canvas.RemoveHeart(1);
+            --numberHeart;
+            StartCoroutine(HandleInvisibleDelay(recoveryTime));
+            StartCoroutine(TakeDamageVisualAnimation());    
+        }
+    }
+
+    private IEnumerator TakeDamageVisualAnimation()
+    {
+        while (isInvicible)
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f, 0f);
+            yield return new WaitForSeconds(recoveryTimeBlinkingDuration);
+            spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+            yield return new WaitForSeconds(recoveryTimeBlinkingDuration);
+        }
+
+    }
+
+    private IEnumerator HandleInvisibleDelay(float delay)
+    {
+        isInvicible = true;
+        yield return new WaitForSeconds(delay);
+        isInvicible = false;
     }
 }

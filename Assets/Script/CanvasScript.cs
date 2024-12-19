@@ -12,17 +12,7 @@ public class CanvasScript : MonoBehaviour
     public int maxHeart = 10;
     public int maxHeartInLine = 10;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    public Vector2 customSizeDelta = Vector2.zero;
 
     public void RemoveHeart(int numberOfHeart)
     {
@@ -55,7 +45,7 @@ public class CanvasScript : MonoBehaviour
             RectTransform newRect = newHeart.GetComponent<RectTransform>();
 
             /* to place the new image */
-            newRect.sizeDelta = new Vector2(30f, 30f);
+            newRect.sizeDelta = customSizeDelta;
             newRect.anchorMax = new Vector2(0f, 1f);
             newRect.anchorMin = new Vector2(0f, 1f);
             newRect.anchoredPosition = new Vector2(newRect.sizeDelta.x * (heartList.Count % maxHeartInLine + 1), newRect.sizeDelta.y * -((int)(heartList.Count/maxHeartInLine) + 1));
