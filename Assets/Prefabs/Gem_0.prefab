@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4706918033803978986}
   - component: {fileID: 6309123042795865246}
   - component: {fileID: 2431360589188039223}
+  - component: {fileID: 3238169546398539573}
   m_Layer: 0
   m_Name: Gem_0
   m_TagString: Gem
@@ -166,3 +167,16 @@ PolygonCollider2D:
       - {x: 0.074999996, y: 0.035}
       - {x: 0.044999998, y: 0.065}
   m_UseDelaunayMesh: 0
+--- !u!114 &3238169546398539573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 199294729061707166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d0a65b7c1a1679408ec16c28e731e9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectValue: 1

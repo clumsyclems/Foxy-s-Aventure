@@ -13,54 +13,28 @@ public class PauseMenuScript : MonoBehaviour
     /* Static boolean to know if the game is paused or not */
     public static bool isPaused = false;
 
-    /* Player Input Action Class*/
-    private PlayerInput playerInput = null;
-   
-
-    private void Awake()
-    {
-        playerInput.GetComponent<PlayerInput>();
-    }
+    /* The Player Input to manage its controls */
+    public PlayerInput playerInput = null;
 
     /* Used to enable the binding Input Action */
     private void OnEnable()
     {
-        playerInput.actions["Selection"].performed += Select;
-        playerInput.actions["Selection"].Enable();
-
         playerInput.actions["Pause"].performed += ChangePauseMenuStatus;
         playerInput.actions["Pause"].Enable();
-
-    }
-
-    /* Used to disable the binding Input Action */
-    private void OnDisable()
-    {
-        playerInput.actions["Selection"].performed -= Select;
-        playerInput.actions["Selection"].Disable();
-
-        playerInput.actions["Pause"].performed -= ChangePauseMenuStatus;
-        playerInput.actions["Pause"].Disable();
     }
 
     /* Activate/desactivate pause menu */
-    private void ChangePauseMenuStatus(InputAction.CallbackContext obj)
+    public void ChangePauseMenuStatus(InputAction.CallbackContext obj)
     {
         if (isPaused)
         {
             ResumeTheGame();
-            playerInput.SwitchCurrentActionMap("Player");
         }
         else
         {
             PauseTheGame();
         }
 
-    }
-
-    private void Select(InputAction.CallbackContext context)
-    {
-        Debug.Log("Selected");
     }
 
     private void PauseTheGame()
@@ -70,7 +44,7 @@ public class PauseMenuScript : MonoBehaviour
         /* Change also the sound effect according if the game is paused or not */
         AudioListener.pause = isPaused;
         /* If the pauseMenu is enable the game stop and if it is disable the game start */
-        Time.timeScale = isPaused ? 0f : 1f;
+        Time.timeScale = 0f;
     }
 
     private void ResumeTheGame()
@@ -80,7 +54,7 @@ public class PauseMenuScript : MonoBehaviour
         /* Change also the sound effect according if the game is paused or not */
         AudioListener.pause = isPaused;
         /* If the pauseMenu is enable the game stop and if it is disable the game start */
-        Time.timeScale = isPaused ? 0f : 1f;
+        Time.timeScale = 1f;
     }
 
 }

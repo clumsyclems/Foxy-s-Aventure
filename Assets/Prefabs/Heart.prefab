@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 501342816677649831}
   - component: {fileID: 635170579110760867}
   - component: {fileID: 7850558397583724440}
+  - component: {fileID: 2684065261024684535}
   m_Layer: 0
   m_Name: Heart
   m_TagString: Heal
@@ -166,3 +167,16 @@ PolygonCollider2D:
       - {x: 0.050640658, y: 0.050138947}
       - {x: -0.03959196, y: 0.05050201}
   m_UseDelaunayMesh: 0
+--- !u!114 &2684065261024684535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4616727804543721380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d0a65b7c1a1679408ec16c28e731e9c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectValue: 1

@@ -6,21 +6,38 @@ using UnityEngine.UI;
 public class CanvasScript : MonoBehaviour
 {
     public Sprite heartSprite = null;
-    public Canvas canvas = null;
     public List<GameObject> heartList = null;
+
+    public static CanvasScript instance = null;
 
     public int maxHeart = 10;
     public int maxHeartInLine = 10;
 
     public Vector2 customSizeDelta = Vector2.zero;
 
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Debug.Log("They have more than inventory inside the project");
+            return;
+        }
+        instance = this;
+    }
+
+    private void Start()
+    {
+        AddHeart(Inventory.instance.Heart);
+    }
+
     public void RemoveHeart(int numberOfHeart)
     {
-        for (int heartIndex = 0 ;heartIndex < numberOfHeart; ++heartIndex)
-        { 
-            Destroy(heartList[heartList.Count-1]);
-            heartList.RemoveAt(heartList.Count-1);
+        for (int heartIndex = 0; (heartIndex < numberOfHeart) && (heartList.Count > 0); ++heartIndex)
+        {
+            Destroy(heartList[heartList.Count - 1]);
+            heartList.RemoveAt(heartList.Count - 1);
         }
+        
     }
 
     public void AddHeart(int numberOfHeart)
@@ -39,7 +56,7 @@ public class CanvasScript : MonoBehaviour
             newImage.preserveAspect = true;
 
             /* Add the new object inside the Canvas */
-            newHeart.transform.SetParent(canvas.transform, false);
+            newHeart.transform.SetParent(gameObject.transform, false);
 
             /* To place the new image */
             RectTransform newRect = newHeart.GetComponent<RectTransform>();

@@ -12,6 +12,7 @@ TagManager:
   - Enemy
   - WeakSpot
   - Floor
+  - SpawnPoint
   layers:
   - Default
   - TransparentFX

@@ -26,10 +26,6 @@ public class PlayerScript : MonoBehaviour
     public Vector3 vector3GroundCheckSize = Vector3.zero;
     /* Transform Need to create a zone to know if the player is on the ground */
     public Transform groundCheckTransform = null;
-    /* Gem Text to modify */
-    public TextMeshProUGUI numberOfGemText = null;
-    /* Canvas which use CanvasScript too modify info on the canvas */
-    public CanvasScript canvas = null;
 
     /* Player RigidBody */
     private new Rigidbody2D rigidbody2D = null;
@@ -41,10 +37,8 @@ public class PlayerScript : MonoBehaviour
     private PlayerInput playerInput = null;
     /* Player Character Animator */
     private Animator animator = null;
-    /* the Player number of heart */
-    private int numberHeart = 3;
-    /* the Player number of gems collected */
-    private int numberGems = 0;
+    /* Pause Menu Script */
+    public PauseMenuScript pauseMenuScript = null;
 
     private void Awake()
     {
@@ -52,16 +46,17 @@ public class PlayerScript : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         playerInput = GetComponent<PlayerInput>();
+
+        movement = playerInput.actions["Movement"];
     }
 
     /* Used to enable the binding Input Action */
     private void OnEnable()
-    {
-        movement = playerInput.actions["Movement"];
+    { 
         movement.Enable();
 
-        playerInput.actions["Movement"].performed += DoJump;
-        playerInput.actions["Movement"].Enable();
+        playerInput.actions["Jump"].performed += DoJump;
+        playerInput.actions["Jump"].Enable();
     }
 
     /* Used to disable the binding Input Action */
@@ -69,13 +64,12 @@ public class PlayerScript : MonoBehaviour
     {
         movement.Disable();
 
-        playerInput.actions["Movement"].performed -= DoJump;
-        playerInput.actions["Movement"].Disable();
+        playerInput.actions["Jump"].performed -= DoJump;
+        playerInput.actions["Jump"].Disable();
     }
 
     private void Start()
     {
-        canvas.AddHeart(numberHeart);
     }
 
     private void FixedUpdate()
@@ -113,13 +107,9 @@ public class PlayerScript : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "Gem":
-                numberGems++;
-                numberOfGemText.text = numberGems.ToString();
-                Destroy(collision.gameObject);
-                break;
-
+            case "Floor":
             case "EndLevel":
-                SceneManager.LoadScene("SampleScene 1");
+            case "Heal":
                 break;
 
             case "Hurt":
@@ -130,20 +120,29 @@ public class PlayerScript : MonoBehaviour
                 TakeDamage(1);
                 break;
 
-            case "Heal":
-                canvas.AddHeart(1);
-                ++numberHeart;
-                break;
-
             case "WeakSpot":
                 if(!isGrounded){rigidbody2D.AddForce(1.5f * jumpForce * Vector2.up);}
                 break;
 
-            case "Floor":
+            default:
+                Debug.Log("Nothing to do for tag : "+collision.gameObject.tag);
+                break;
+        }
+    }
+
+    /* Verify the Collision Presence between the player and other object */
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        switch (collision.gameObject.tag)
+        {
+            case "Hurt":
+                TakeDamage(1);
+                break;
+            case "Enemy":
+                TakeDamage(1);
                 break;
 
             default:
-                Debug.Log("Nothing to do for tag : "+collision.gameObject.tag);
                 break;
         }
     }
@@ -184,22 +183,11 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    public void SetNumberOfHeart(int numberOfHeart)
-    { 
-        this.numberHeart = numberOfHeart;
-    }
-
-    public int GetNumberHeart()
-    {
-        return this.numberHeart;
-    }
-
     private void TakeDamage(int damage)
     { 
         if(!isInvicible)
         {
-            canvas.RemoveHeart(1);
-            --numberHeart;
+            Inventory.instance.UpdateHeart(-damage);
             StartCoroutine(HandleInvisibleDelay(recoveryTime));
             StartCoroutine(TakeDamageVisualAnimation());    
         }
