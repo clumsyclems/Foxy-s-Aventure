@@ -1,20 +1,40 @@
-using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class PauseMenuScript : MonoBehaviour
+public class PauseMenuScript : Abstract_Canvas<PauseMenuScript>
 {
     /* The pause menu panel */
-    public Image pauseMenu = null;
+    [SerializeField] private Image pauseMenu = null;
 
     /* Static boolean to know if the game is paused or not */
-    public static bool isPaused = false;
+    [SerializeField] private static bool isPaused = false;
 
     /* The Player Input to manage its controls */
-    public PlayerInput playerInput = null;
+    [SerializeField] private PlayerInput playerInput = null;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        FindEventManager(); // Recherche de l'EventManager
+    }
+
+    protected void FindEventManager()
+    {
+        GameObject player = GameObject.Find("Player");
+
+        if (player == null)
+        {
+            Debug.LogError("EventManager inexistant inside the scene !");
+        }
+
+        playerInput = player.GetComponent<PlayerInput>();
+
+        if(playerInput == null)
+        {
+            Debug.LogError("EventManager inexistant inside the scene !");
+        }
+    }
 
     /* Used to enable the binding Input Action */
     private void OnEnable()

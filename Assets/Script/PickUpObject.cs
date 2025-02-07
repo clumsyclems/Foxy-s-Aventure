@@ -13,10 +13,10 @@ public class PickUpObject : MonoBehaviour
             switch (gameObject.tag)
             {
                 case "Gem":
-                    Inventory.instance.UpdateGems(objectValue);
+                    Inventory.Instance.UpdateGems(objectValue);
                     break;
                 case "Heal":
-                    Inventory.instance.UpdateHeart(objectValue);
+                    Inventory.Instance.UpdateHeart(objectValue);
                     break;
                 default:
                     Debug.Log("Nothing to do with this object" + gameObject.tag);

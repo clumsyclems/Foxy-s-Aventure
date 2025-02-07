@@ -6,66 +6,77 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class PlayerScript : MonoBehaviour
+public class PlayerScript : Singleton<PlayerScript>
 {
     /* Value to know if the player is on the ground */
-    public Boolean isGrounded = false;
+    [SerializeField] private Boolean isGrounded = false;
     /* Boolean the set invicible the player */
-    public Boolean isInvicible = false;
+    [SerializeField] private Boolean isInvicible = false;
     /* The Recovery time blinking duration */
-    public float recoveryTimeBlinkingDuration = 0.2f;
+    [SerializeField] private float recoveryTimeBlinkingDuration = 0.2f;
     /* The Recovery time */
-    public float recoveryTime = 0f;
+    [SerializeField] private float recoveryTime = 0f;
     /* Define the max speed of the player */
-    public float maxSpeed = 2.0f;
+    [SerializeField] private float maxSpeed = 2.0f;
     /* Define the jumpforce of the player */
-    public float jumpForce = 10f;
+    [SerializeField] private float jumpForce = 10f;
     /* LayerMask to now which is the floor */
-    public LayerMask floorLayerMask;
+    [SerializeField] private LayerMask floorLayerMask;
     /* Value to use for the size of the ground check box */
-    public Vector3 vector3GroundCheckSize = Vector3.zero;
+    [SerializeField] private Vector2 vector2GroundCheckSize = Vector3.zero;
     /* Transform Need to create a zone to know if the player is on the ground */
-    public Transform groundCheckTransform = null;
+    [SerializeField] private Transform groundCheckTransform = null;
 
     /* Player RigidBody */
-    private new Rigidbody2D rigidbody2D = null;
+    [SerializeField] private new Rigidbody2D rigidbody2D = null;
     /* Player Sprite Renderer */
-    private SpriteRenderer spriteRenderer = null;
+    [SerializeField] private SpriteRenderer spriteRenderer = null;
     /* Input action value which take the player movement */
-    private InputAction movement = null;
+    [SerializeField] private InputAction movement = null;
     /* Player Input to switch commands according the type of screen */
-    private PlayerInput playerInput = null;
+    [SerializeField] private PlayerInput playerInput = null;
     /* Player Character Animator */
-    private Animator animator = null;
-    /* Pause Menu Script */
-    public PauseMenuScript pauseMenuScript = null;
+    [SerializeField] private Animator animator = null;
 
-    private void Awake()
+    /* Event to manage the player input from other game object */
+    public static event System.Action<bool> OnControlToggle;
+
+    protected override void Awake()
     {
-        rigidbody2D = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-        playerInput = GetComponent<PlayerInput>();
-
+        base.Awake();
         movement = playerInput.actions["Movement"];
     }
 
     /* Used to enable the binding Input Action */
     private void OnEnable()
     { 
+        /* Enable movement player input */
         movement.Enable();
 
+        /* Define and enable jump player input */
         playerInput.actions["Jump"].performed += DoJump;
         playerInput.actions["Jump"].Enable();
+
+        /* Add the hability to other object to enable and disable player input */
+        OnControlToggle += ToggleControls;
     }
 
     /* Used to disable the binding Input Action */
     private void OnDisable()
     {
-        movement.Disable();
+        /* Disable movement player input */
+        movement?.Disable();
 
-        playerInput.actions["Jump"].performed -= DoJump;
-        playerInput.actions["Jump"].Disable();
+        /* remove and disable jump player input */
+        if (playerInput != null)
+        {
+            playerInput.actions["Jump"].performed -= DoJump;
+            playerInput.actions["Jump"].Disable();
+        }
+
+        /* Remove the hability to other object to enable and disable player input */
+
+        OnControlToggle -= ToggleControls;
     }
 
     private void Start()
@@ -89,7 +100,7 @@ public class PlayerScript : MonoBehaviour
         Flip(horizontalDirection);
 
         /* grounded verification */
-        isGrounded = Physics2D.OverlapBox(groundCheckTransform.position, vector3GroundCheckSize, 0, floorLayerMask);
+        isGrounded = Physics2D.OverlapBox(groundCheckTransform.position, vector2GroundCheckSize, 0, floorLayerMask);
         animator.SetBool("IsGrounded", isGrounded);
 
     }
@@ -98,7 +109,7 @@ public class PlayerScript : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(groundCheckTransform.position, vector3GroundCheckSize);
+        Gizmos.DrawWireCube(groundCheckTransform.position, vector2GroundCheckSize);
     }
 
     /* Verify the player collision with other trigerred collider */
@@ -110,6 +121,7 @@ public class PlayerScript : MonoBehaviour
             case "Floor":
             case "EndLevel":
             case "Heal":
+            case "WeakSpot":
                 break;
 
             case "Hurt":
@@ -118,10 +130,6 @@ public class PlayerScript : MonoBehaviour
 
             case "Enemy":
                 TakeDamage(1);
-                break;
-
-            case "WeakSpot":
-                if(!isGrounded){rigidbody2D.AddForce(1.5f * jumpForce * Vector2.up);}
                 break;
 
             default:
@@ -174,7 +182,7 @@ public class PlayerScript : MonoBehaviour
             spriteRenderer.flipX = false;
     }
 
-    /* Player ump function */
+    /* Player jump function */
     private void DoJump(InputAction.CallbackContext obj)
     {
         if (Input.GetButton("Jump") && isGrounded)
@@ -183,16 +191,18 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    /* Function to the player can take the damage */
     private void TakeDamage(int damage)
     { 
         if(!isInvicible)
         {
-            Inventory.instance.UpdateHeart(-damage);
+            Inventory.Instance.UpdateHeart(-damage);
             StartCoroutine(HandleInvisibleDelay(recoveryTime));
             StartCoroutine(TakeDamageVisualAnimation());    
         }
     }
 
+    /* Coroutine to enable TakeDamage visual animation (Sprite Flicking) */ 
     private IEnumerator TakeDamageVisualAnimation()
     {
         while (isInvicible)
@@ -205,10 +215,23 @@ public class PlayerScript : MonoBehaviour
 
     }
 
+    /* Coroutine to enable the hability to the player to be Invisible */
     private IEnumerator HandleInvisibleDelay(float delay)
     {
         isInvicible = true;
         yield return new WaitForSeconds(delay);
         isInvicible = false;
+    }
+
+    /* Function to change the player input status (Enable/Disable) */
+    private void ToggleControls(bool state)
+    {
+        playerInput.enabled = state;
+    }
+
+    /* Public function to triggered the event to enable or disable the player input */
+    public static void TriggerToggleControls(bool state)
+    {
+        OnControlToggle?.Invoke(state);
     }
 }

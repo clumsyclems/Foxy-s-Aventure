@@ -3,31 +3,19 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CanvasScript : MonoBehaviour
+public class CanvasScript : Abstract_Canvas<CanvasScript>
 {
-    public Sprite heartSprite = null;
-    public List<GameObject> heartList = null;
+    [SerializeField] private Sprite heartSprite = null;
+    [SerializeField] private List<GameObject> heartList = null;
 
-    public static CanvasScript instance = null;
-
-    public int maxHeart = 10;
-    public int maxHeartInLine = 10;
+    [SerializeField] private int maxHeart = 10;
+    [SerializeField] private int maxHeartInLine = 10;
 
     public Vector2 customSizeDelta = Vector2.zero;
 
-    private void Awake()
-    {
-        if (instance != null)
-        {
-            Debug.Log("They have more than inventory inside the project");
-            return;
-        }
-        instance = this;
-    }
-
     private void Start()
     {
-        AddHeart(Inventory.instance.Heart);
+        AddHeart(Inventory.Instance.Heart);
     }
 
     public void RemoveHeart(int numberOfHeart)

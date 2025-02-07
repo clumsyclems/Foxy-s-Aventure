@@ -1,28 +1,36 @@
 using System.Runtime.InteropServices.WindowsRuntime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
-public class Inventory : MonoBehaviour
+public class Inventory : Singleton<Inventory>
 {
     /* Gem Text to modify */
-    public TextMeshProUGUI numberOfGemText = null;
+    [SerializeField] private TextMeshProUGUI numberOfGemText = null;
 
-    private int gems = 0;
-    private int heart = 3;
+    [SerializeField] private int gems = 0;
+    [SerializeField] private int heart = 3;
 
     public int Gems { get => gems; set => gems = value; }
     public int Heart { get => heart; set => heart = value; }
 
-    public static Inventory instance;
-
-    private void Awake()
+    protected override void Awake()
     {
-        if(instance != null)
+        base.Awake();
+        GameObject gemTextTMP = GameObject.Find("Gem Text (TMP)");
+
+        if (gemTextTMP == null)
         {
-            Debug.Log("They have more than inventory inside the project");
-            return;
+            Debug.LogError("EventManager inexistant inside the scene !");
         }
-        instance = this;
+
+        numberOfGemText = gemTextTMP.GetComponent<TextMeshProUGUI>();
+
+        if (numberOfGemText == null)
+        {
+            Debug.LogError("EventManager inexistant inside the scene !");
+        }
     }
 
     public void UpdateGems(int nbGems)
@@ -38,11 +46,11 @@ public class Inventory : MonoBehaviour
         heart += nbHeart;
         if (nbHeart > 0)
         {
-            CanvasScript.instance.AddHeart(nbHeart);
+            CanvasScript.Instance.AddHeart(nbHeart);
         }
         else
         {
-            CanvasScript.instance.RemoveHeart(-nbHeart);
+            CanvasScript.Instance.RemoveHeart(-nbHeart);
         }
 
     }
