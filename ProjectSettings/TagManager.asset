@@ -13,6 +13,7 @@ TagManager:
   - WeakSpot
   - Floor
   - SpawnPoint
+  - SceneBorder
   layers:
   - Default
   - TransparentFX

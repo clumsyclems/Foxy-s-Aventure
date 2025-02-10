@@ -73,21 +73,37 @@ public class GameManagerScript : Singleton<GameManagerScript>
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    /* Function add to add some animation at the beginning of the scene */
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (!isTransparent)
         {
+            foreach(GameObject gameObject in requiredObjects)
+            {
+                StartCoroutine(IsGameObjectReady(gameObject));
+            }
             StartCoroutine(StartScene());
         }
     }
 
+    /* Coroutine to launch some animation at the beginning of the scene */
     private IEnumerator StartScene()
     {
+
         fadeSystemAnimator.SetTrigger("FadeOut");
         yield return new WaitForSeconds(1f);
 
         isTransparent = true;
         PlayerScript.TriggerToggleControls(true);
 
+    }
+
+    /* Coroutine to waiting the activation of the all components require for the scene load */
+    public IEnumerator IsGameObjectReady(GameObject gameObject)
+    {
+        if (!Utils.IsGameObjectActive(gameObject))
+        {
+            yield return null;
+        }
     }
 }

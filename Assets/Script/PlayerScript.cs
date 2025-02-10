@@ -122,6 +122,7 @@ public class PlayerScript : Singleton<PlayerScript>
             case "EndLevel":
             case "Heal":
             case "WeakSpot":
+            case "SceneBorder":
                 break;
 
             case "Hurt":

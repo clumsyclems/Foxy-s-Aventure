@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 222992391612082682}
   - component: {fileID: 7355756412501559314}
   - component: {fileID: 6340166471779143724}
+  - component: {fileID: 1965442132435157510}
   m_Layer: 0
   m_Name: Player CinemachineCamera
   m_TagString: Untagged
@@ -59,7 +60,7 @@ Transform:
   m_GameObject: {fileID: 6789686299450910417}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.1135246, y: 0.51199996, z: -10}
+  m_LocalPosition: {x: 13.678928, y: 13.678928, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -159,6 +160,19 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
+--- !u!114 &1965442132435157510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6789686299450910417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb9a261190c2b484c95b0ff7cc64c191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cinemachineConfiner: {fileID: 6340166471779143724}
 --- !u!1 &7700209018924750419
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,7 +350,6 @@ MonoBehaviour:
   recoveryTime: 3
   maxSpeed: 100
   jumpForce: 200
-  bounceForce: 350
   floorLayerMask:
     serializedVersion: 2
     m_Bits: 64
