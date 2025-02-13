@@ -45,6 +45,6 @@ public class CinemachineCameraScript : MonoBehaviour
         cinemachineConfiner.BoundingShape2D = boxCollider;
         cinemachineConfiner.InvalidateBoundingShapeCache();
 
-        Debug.Log("BoundingShape2D correctly assigned!");
+        // Debug.Log("BoundingShape2D correctly assigned!");
     }
 }

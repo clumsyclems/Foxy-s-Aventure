@@ -8,6 +8,8 @@ using UnityEngine.UI;
 
 public class PlayerScript : Singleton<PlayerScript>
 {
+    /* Boolean to know if the player is in animation */
+    [SerializeField] private Boolean isAnimated = false;
     /* Value to know if the player is on the ground */
     [SerializeField] private Boolean isGrounded = false;
     /* Boolean the set invicible the player */
@@ -79,30 +81,25 @@ public class PlayerScript : Singleton<PlayerScript>
         OnControlToggle -= ToggleControls;
     }
 
-    private void Start()
-    {
-    }
 
     private void FixedUpdate()
-    { 
-        /* Manage Vertical direction */
-        animator.SetFloat("VerticalVelocity", rigidbody2D.linearVelocityY);
+    {
+        if (!isAnimated)
+        {
+            /* Manage Vertical direction */
+            animator.SetFloat("VerticalVelocity", rigidbody2D.linearVelocityY);
 
-        /**
-         * Manage Horizontal direction 
-         * get the input system info for the movement 
-         */
-        float horizontalDirection = movement.ReadValue<Vector2>().x;
-        animator.SetFloat("Speed", MathF.Abs(horizontalDirection));
-        rigidbody2D.linearVelocity = new Vector2(horizontalDirection * maxSpeed * Time.deltaTime, rigidbody2D.linearVelocityY);
+            /**
+             * Manage Horizontal direction 
+             * get the input system info for the movement 
+             */
+            float horizontalDirection = movement.ReadValue<Vector2>().x;
+            PlayerMove(horizontalDirection);
 
-        /* Verify if flip the player sprite is needed */
-        Flip(horizontalDirection);
-
-        /* grounded verification */
-        isGrounded = Physics2D.OverlapBox(groundCheckTransform.position, vector2GroundCheckSize, 0, floorLayerMask);
-        animator.SetBool("IsGrounded", isGrounded);
-
+            /* grounded verification */
+            isGrounded = Physics2D.OverlapBox(groundCheckTransform.position, vector2GroundCheckSize, 0, floorLayerMask);
+            animator.SetBool("IsGrounded", isGrounded);
+        }
     }
 
     /* Draw Gizmo here the groundcheck verification area */
@@ -235,4 +232,41 @@ public class PlayerScript : Singleton<PlayerScript>
     {
         OnControlToggle?.Invoke(state);
     }
+
+    /* Function to apply the playerMovement */
+    private void PlayerMove(float horizontalDirection)
+    {
+        animator.SetFloat("Speed", MathF.Abs(horizontalDirection));
+        rigidbody2D.linearVelocity = new Vector2(horizontalDirection * maxSpeed * Time.deltaTime, rigidbody2D.linearVelocityY);
+
+        /* Verify if flip the player sprite is needed */
+        Flip(horizontalDirection);
+    }
+
+    public static IEnumerator PlayerMovementAnimation(Vector2 targetPosition, float duration)
+    {
+        TriggerToggleControls(false);
+        Instance.isAnimated = true;
+        Vector2 startPosition = Instance.transform.position;
+        float elapsedTime = 0f;
+
+        // Déterminer la direction pour l'animation
+        int horizontalDirection = (targetPosition.x - startPosition.x > 0) ? 1 : -1;
+        Instance.animator.SetFloat("Speed", MathF.Abs(horizontalDirection));
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsedTime / duration);
+            Instance.transform.position = Vector2.Lerp(startPosition, targetPosition, t);
+            yield return null;
+        }
+
+        // S'assurer que le joueur atteint exactement la position finale
+        //Instance.transform.position = targetPosition;
+        Instance.animator.SetFloat("Speed", 0);
+        Instance.isAnimated = false;
+        TriggerToggleControls(true);
+    }
+
 }

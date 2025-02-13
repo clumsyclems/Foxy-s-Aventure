@@ -925,14 +925,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
-  fadeSystemAnimator: {fileID: 0}
-  isTransparent: 1
+  isTransparent: 0
   requiredObjects:
   - {fileID: 3191254756049587715, guid: 2e24244cc73c8d64da2727e94fff03ba, type: 3}
   - {fileID: 13599150739987853, guid: 20e3980de80c53e498b169835922233e, type: 3}
-  - {fileID: 7700209018924750419, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
   - {fileID: 2510843645484124447, guid: 7f46b9174ab988547bf7b56d353f79d9, type: 3}
+  - {fileID: 7700209018924750419, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
   - {fileID: 1542374850434469282, guid: 307dbacf5684df74385b1585e6f942d1, type: 3}
+  cercleEffectPosition: {x: 0, y: 0}
+  circleRadiusInUV: 0.1
+  playerAnimationDuration: 2
 --- !u!1 &1636462427
 GameObject:
   m_ObjectHideFlags: 0
@@ -8048,7 +8050,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 115462498169365180, guid: a37cae5a45878fc4d9447a756aebb8c0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -2.457
       objectReference: {fileID: 0}
     - target: {fileID: 115462498169365180, guid: a37cae5a45878fc4d9447a756aebb8c0, type: 3}
       propertyPath: m_LocalPosition.y

@@ -4,10 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManagerScript : Singleton<GameManagerScript>
-{    
-    /* The animator to manage the fade system */
-    [SerializeField] private Animator fadeSystemAnimator = null;
-
+{
     /* Tranparent Status to know the fade system color */
     [SerializeField] private bool isTransparent = true;
     
@@ -16,9 +13,81 @@ public class GameManagerScript : Singleton<GameManagerScript>
 
     [SerializeField] private GameObject[] requiredObjects; // Liste des objets à garder en scène
 
+    [SerializeField] private Vector2 cercleEffectPosition = Vector2.zero;
+
+    [SerializeField] private float circleRadiusInUV = 0f;
+
+    [SerializeField] private float playerAnimationDuration = 0f;
+
     protected override void Awake()
     {
         base.Awake();
+        LoadObjectNeeded();
+    }
+
+    /* Function to load specific scene (name given in argument) */
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    
+    /* Coroutine to laod a specific scene */
+    public IEnumerator GetLoadSpecificScene(string sceneName)
+    {
+        PlayerScript.TriggerToggleControls(false);
+        
+        IsTransparent = false;
+
+        yield return new WaitForSeconds(1f);
+
+        SceneManager.LoadScene(sceneName);
+    }
+
+    /* Function add to add some animation at the beginning of the scene */
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        StartCoroutine(SceneLoadingSequence());
+    }
+    private IEnumerator SceneLoadingSequence()
+    {
+        foreach (GameObject gameObject in requiredObjects)
+        {
+            yield return StartCoroutine(IsGameObjectReady(gameObject));
+        }
+
+        yield return new WaitForSeconds(1f);
+        
+        if (!isTransparent)
+        {
+            yield return StartCoroutine(StartScene());
+        }
+    }
+
+    /* Coroutine to launch some animation at the beginning of the scene */
+    private IEnumerator StartScene()
+    {
+        float expandDuration = 1f;
+        cercleEffectPosition = Utils.WorldToUV(PlayerScript.Instance.transform.position, Camera.main);
+        cercleEffectPosition.x = (cercleEffectPosition.x > circleRadiusInUV) ? cercleEffectPosition.x : circleRadiusInUV/3;
+        Vector2 cercleEffectPositionXY = Utils.UVToWorld(cercleEffectPosition, Camera.main);
+        
+        yield return StartCoroutine(CircleRevealEffect.ExpandRadius(cercleEffectPosition, 0f, circleRadiusInUV, expandDuration));
+
+        yield return StartCoroutine(PlayerScript.PlayerMovementAnimation(cercleEffectPositionXY, playerAnimationDuration));
+
+        yield return StartCoroutine(CircleRevealEffect.ExpandRadius(cercleEffectPosition, circleRadiusInUV, 2.5f, expandDuration));
+
+
+        IsTransparent = true;
+    }
+
+    private void LoadObjectNeeded()
+    {
         foreach (GameObject obj in requiredObjects)
         {
             if (obj != null)
@@ -34,76 +103,15 @@ public class GameManagerScript : Singleton<GameManagerScript>
                 }
             }
         }
-
-        GameObject fadeSystem = GameObject.Find("FadeSystem");
-        if (fadeSystem == null)
-        {
-            Debug.LogError("FadeSystem is inexistant inside the scene");
-        }
-
-        fadeSystemAnimator = fadeSystem.GetComponent<Animator>();
-
-        if (fadeSystemAnimator == null)
-        {
-            Debug.LogError("FadeSystemAnimator is inexistant inside the fadeSystem component");
-        }
-
-    }
-
-    /* Function to load specific scene (name given in argument) */
-    public IEnumerator GetLoadSpecificScene(string sceneName)
-    {
-        PlayerScript.TriggerToggleControls(false);
-        fadeSystemAnimator.SetTrigger("FadeIn");
-        //Debug.Log("FadeIn activate");
-        isTransparent = false;
-
-        yield return new WaitForSeconds(1f);
-
-        SceneManager.LoadScene(sceneName);
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    /* Function add to add some animation at the beginning of the scene */
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (!isTransparent)
-        {
-            foreach(GameObject gameObject in requiredObjects)
-            {
-                StartCoroutine(IsGameObjectReady(gameObject));
-            }
-            StartCoroutine(StartScene());
-        }
-    }
-
-    /* Coroutine to launch some animation at the beginning of the scene */
-    private IEnumerator StartScene()
-    {
-
-        fadeSystemAnimator.SetTrigger("FadeOut");
-        yield return new WaitForSeconds(1f);
-
-        isTransparent = true;
-        PlayerScript.TriggerToggleControls(true);
-
     }
 
     /* Coroutine to waiting the activation of the all components require for the scene load */
-    public IEnumerator IsGameObjectReady(GameObject gameObject)
+    private IEnumerator IsGameObjectReady(GameObject gameObject)
     {
         if (!Utils.IsGameObjectActive(gameObject))
         {
             yield return null;
         }
     }
+
 }
