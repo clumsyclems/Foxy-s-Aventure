@@ -22,7 +22,7 @@ public class CanvasScript : Abstract_Canvas<CanvasScript>
     {
         for (int heartIndex = 0; (heartIndex < numberOfHeart) && (heartList.Count > 0); ++heartIndex)
         {
-            Destroy(heartList[heartList.Count - 1]);
+            Destroy(heartList[^1]);
             heartList.RemoveAt(heartList.Count - 1);
         }
         
@@ -30,7 +30,6 @@ public class CanvasScript : Abstract_Canvas<CanvasScript>
 
     public void AddHeart(int numberOfHeart)
     { 
-        float lastHeartPositionX = (heartList.LastOrDefault() != null) ? heartList.Last().GetComponent<RectTransform>().anchoredPosition.x : 0f;
         for (int heartIndex = 0; (heartIndex < numberOfHeart) && (heartList.Count < maxHeart); ++heartIndex)
         {
             /* Create a new game object for the life */

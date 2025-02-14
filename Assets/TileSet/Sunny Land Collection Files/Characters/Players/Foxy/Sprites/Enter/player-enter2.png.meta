@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 462f4c9d2843de04ebb05572b63e7529
+guid: 52b8936d63df3c7409c92fa46f64fcb4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7642986446173420197
-    second: Victory_0
+      213: 8340747306635451311
+    second: player-enter2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,11 +139,11 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Victory_0
+      name: player-enter2_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 0
+        x: 5
+        y: 1
         width: 21
         height: 25
       alignment: 0
@@ -154,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b5545bc4258aee590800000000000000
-      internalID: -7642986446173420197
+      spriteID: fab5d45fb7940c370800000000000000
+      internalID: 8340747306635451311
       vertices: []
       indices: 
       edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Victory_0: -7642986446173420197
+      player-enter2_0: 8340747306635451311
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

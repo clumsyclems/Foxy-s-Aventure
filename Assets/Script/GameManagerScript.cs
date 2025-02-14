@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
@@ -18,6 +19,8 @@ public class GameManagerScript : Singleton<GameManagerScript>
     [SerializeField] private float circleRadiusInUV = 0f;
 
     [SerializeField] private float playerAnimationDuration = 0f;
+
+    [SerializeField] private float circleExpandDuration = 0f;
 
     protected override void Awake()
     {
@@ -64,26 +67,8 @@ public class GameManagerScript : Singleton<GameManagerScript>
         
         if (!isTransparent)
         {
-            yield return StartCoroutine(StartScene());
+            yield return StartCoroutine(AnimationScript.Instance.StartScene(circleRadiusInUV, playerAnimationDuration, circleExpandDuration));
         }
-    }
-
-    /* Coroutine to launch some animation at the beginning of the scene */
-    private IEnumerator StartScene()
-    {
-        float expandDuration = 1f;
-        cercleEffectPosition = Utils.WorldToUV(PlayerScript.Instance.transform.position, Camera.main);
-        cercleEffectPosition.x = (cercleEffectPosition.x > circleRadiusInUV) ? cercleEffectPosition.x : circleRadiusInUV/3;
-        Vector2 cercleEffectPositionXY = Utils.UVToWorld(cercleEffectPosition, Camera.main);
-        
-        yield return StartCoroutine(CircleRevealEffect.ExpandRadius(cercleEffectPosition, 0f, circleRadiusInUV, expandDuration));
-
-        yield return StartCoroutine(PlayerScript.PlayerMovementAnimation(cercleEffectPositionXY, playerAnimationDuration));
-
-        yield return StartCoroutine(CircleRevealEffect.ExpandRadius(cercleEffectPosition, circleRadiusInUV, 2.5f, expandDuration));
-
-
-        IsTransparent = true;
     }
 
     private void LoadObjectNeeded()

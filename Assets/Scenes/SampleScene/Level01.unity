@@ -507,6 +507,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &504438027 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 653974067589352856, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
+  m_PrefabInstance: {fileID: 2672833992996769583}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &808323091
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -771,7 +782,7 @@ GameObject:
   - component: {fileID: 1225255052}
   m_Layer: 0
   m_Name: SeaBackground
-  m_TagString: Untagged
+  m_TagString: Background
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -932,9 +943,11 @@ MonoBehaviour:
   - {fileID: 2510843645484124447, guid: 7f46b9174ab988547bf7b56d353f79d9, type: 3}
   - {fileID: 7700209018924750419, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
   - {fileID: 1542374850434469282, guid: 307dbacf5684df74385b1585e6f942d1, type: 3}
+  - {fileID: 8286423641400708862, guid: 377b1335cd87c924ba3e02c521d9fe10, type: 3}
   cercleEffectPosition: {x: 0, y: 0}
   circleRadiusInUV: 0.1
   playerAnimationDuration: 2
+  circleExpandDuration: 0.5
 --- !u!1 &1636462427
 GameObject:
   m_ObjectHideFlags: 0
@@ -7910,17 +7923,41 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 243514853167504137, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 653974067589352856, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1214593362388631904, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2182002522286527043, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2182002522286527043, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
+      propertyPath: playerInput
+      value: 
+      objectReference: {fileID: 504438027}
     - target: {fileID: 2182002522286527043, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
       propertyPath: vector2GroundCheckSize.x
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 3107931252972920252, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4488478735655778160, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.966
+      value: 1.875
       objectReference: {fileID: 0}
     - target: {fileID: 4488478735655778160, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.4763
+      value: -0.474
       objectReference: {fileID: 0}
     - target: {fileID: 4488478735655778160, guid: 4f64e4d5924a96b429bb8f8b3a3e8568, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8050,7 +8087,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 115462498169365180, guid: a37cae5a45878fc4d9447a756aebb8c0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.457
+      value: -0.996
       objectReference: {fileID: 0}
     - target: {fileID: 115462498169365180, guid: a37cae5a45878fc4d9447a756aebb8c0, type: 3}
       propertyPath: m_LocalPosition.y
